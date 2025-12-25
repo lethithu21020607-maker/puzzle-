@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>🧩 Puzzle Hoàn Chỉnh Có Khung</title>
+
+<style>
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    font-family:Arial,sans-serif;
+}
+
+.wrapper{
+    background:#fff;
+    padding:16px;
+    border-radius:14px;
+    display:flex;
+    gap:20px;
+    box-shadow:0 20px 40px rgba(0,0,0,.3);
+}
+
+h3{
+    text-align:center;
+    margin:6px 0 10px;
+}
+
+/* ===== KHUNG VIỀN NGOÀI ===== */
+.board-frame{
+    padding:6px; /* độ dày viền */
+    border-radius:12px;
+    background:linear-gradient(135deg,#d400ff,#0091ff);
+}
+
+/* ===== KHUNG GHÉP (KHÍT TUYỆT ĐỐI) ===== */
+#board{
+    width:300px;
+    height:300px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:repeat(3,1fr);
+}
+
+/* SLOT KHÔNG MÀU – KHÔNG VIỀN */
+.slot{
+    width:100%;
+    height:100%;
+}
+
+/* ===== KHAY MẢNH ===== */
+#tray{
+    width:300px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+}
+
+/* ===== MẢNH TRANH ===== */
+.piece{
+    width:100%;
+    aspect-ratio:1/1;
+    background-image:url("anh.jpg");
+    background-size:300px 300px;
+    cursor:grab;
+}
+
+/* MẢNH ĐÚNG */
+.piece.locked{
+    cursor:default;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+    <div>
+        <h3>🧩 Khung Ghép</h3>
+        <div class="board-frame">
+            <div id="board"></div>
+        </div>
+    </div>
+
+    <div>
+        <h3>🧩 Mảnh Tranh</h3>
+        <div id="tray"></div>
+    </div>
+
+</div>
+
+<script>
+const size = 3;
+const board = document.getElementById("board");
+const tray = document.getElementById("tray");
+let dragged = null;
+
+/* ===== TẠO SLOT ===== */
+for(let i=0;i<size*size;i++){
+    const slot = document.createElement("div");
+    slot.className = "slot";
+    slot.dataset.index = i;
+
+    slot.addEventListener("dragover", e => e.preventDefault());
+    slot.addEventListener("drop", () => dropToSlot(slot));
+
+    board.appendChild(slot);
+}
+
+/* ===== TẠO MẢNH ===== */
+const pieces = [];
+for(let i=0;i<size*size;i++){
+    const piece = document.createElement("div");
+    piece.className = "piece";
+    piece.draggable = true;
+    piece.dataset.index = i;
+
+    const x = (i % size) * -100;
+    const y = Math.floor(i / size) * -100;
+    piece.style.backgroundPosition = `${x}px ${y}px`;
+
+    piece.addEventListener("dragstart", () => dragged = piece);
+    pieces.push(piece);
+}
+
+/* ===== TRỘN & ĐƯA VÀO KHAY ===== */
+pieces.sort(() => Math.random() - 0.5);
+pieces.forEach(p => tray.appendChild(p));
+
+tray.addEventListener("dragover", e => e.preventDefault());
+tray.addEventListener("drop", () => {
+    if (dragged) tray.appendChild(dragged);
+});
+
+/* ===== THẢ VÀO SLOT ===== */
+function dropToSlot(slot){
+    if (!dragged) return;
+
+    if (slot.firstChild){
+        tray.appendChild(slot.firstChild);
+    }
+    slot.appendChild(dragged);
+
+    if (dragged.dataset.index == slot.dataset.index){
+        dragged.classList.add("locked");
+        dragged.draggable = false;
+    }
+
+    dragged = null;
+    checkWin();
+}
+
+/* ===== KIỂM TRA HOÀN THÀNH ===== */
+function checkWin(){
+    for(let i=0;i<board.children.length;i++){
+        const slot = board.children[i];
+        if (!slot.firstChild || slot.firstChild.dataset.index != i){
+            return;
+        }
+    }
+    setTimeout(() => alert("🎉 Hoàn thành bức tranh!"), 200);
+}
+</script>
+
+</body>
+</html>
+
+
+
+</script>
+
+</body>
+</html>
