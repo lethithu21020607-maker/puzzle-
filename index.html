@@ -1,176 +1,187 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>🧩 Puzzle Hoàn Chỉnh Có Khung</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hidden Object – Tết Việt</title>
 
 <style>
-body{
-    margin:0;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:linear-gradient(135deg,#667eea,#764ba2);
-    font-family:Arial,sans-serif;
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(135deg,#c31432,#240b36);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-.wrapper{
-    background:#fff;
-    padding:16px;
-    border-radius:14px;
-    display:flex;
-    gap:20px;
-    box-shadow:0 20px 40px rgba(0,0,0,.3);
+.game {
+  background: #fff8ec;
+  border-radius: 20px;
+  padding: 16px;
+  max-width: 900px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
 }
 
-h3{
-    text-align:center;
-    margin:6px 0 10px;
+header {
+  text-align: center;
+  margin-bottom: 10px;
 }
 
-/* ===== KHUNG VIỀN NGOÀI ===== */
-.board-frame{
-    padding:6px; /* độ dày viền */
-    border-radius:12px;
-    background:linear-gradient(135deg,#d400ff,#0091ff);
+header h1 {
+  color: #c40000;
+  margin: 0;
 }
 
-/* ===== KHUNG GHÉP (KHÍT TUYỆT ĐỐI) ===== */
-#board{
-    width:300px;
-    height:300px;
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    grid-template-rows:repeat(3,1fr);
+header p {
+  margin: 5px 0;
+  color: #444;
 }
 
-/* SLOT KHÔNG MÀU – KHÔNG VIỀN */
-.slot{
-    width:100%;
-    height:100%;
+.scene {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  aspect-ratio: 16 / 9;
+  margin: auto;
+  background: url("tet.jpg") center / cover no-repeat;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 6px solid #c40000;
 }
 
-/* ===== KHAY MẢNH ===== */
-#tray{
-    width:300px;
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:8px;
+/* object */
+.object {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
-/* ===== MẢNH TRANH ===== */
-.piece{
-    width:100%;
-    aspect-ratio:1/1;
-    background-image:url("anh.jpg");
-    background-size:300px 300px;
-    cursor:grab;
+.object::after {
+  content: "";
+  position: absolute;
+  inset: 0;
 }
 
-/* MẢNH ĐÚNG */
-.piece.locked{
-    cursor:default;
+.object.found::after {
+  border: 3px solid gold;
+  border-radius: 50%;
+  box-shadow: 0 0 15px gold;
+}
+
+.object.found {
+  pointer-events: none;
+}
+
+/* list */
+.list {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.item {
+  background: #ffe6a7;
+  padding: 8px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+}
+
+.item.found {
+  background: #ffd700;
+  text-decoration: line-through;
+}
+
+/* win popup */
+#win {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+#win .box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+#win h2 {
+  color: #c40000;
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrapper">
+<div class="game">
+  <header>
+    <h1>🧧 Tìm Đồ Vật Ngày Tết 🧧</h1>
+    <p>Hãy tìm tất cả đồ vật ẩn trong bức tranh</p>
+  </header>
 
-    <div>
-        <h3>🧩 Khung Ghép</h3>
-        <div class="board-frame">
-            <div id="board"></div>
-        </div>
-    </div>
+  <div class="scene">
+    <div class="object" data-name="Bao lì xì" style="top:65%; left:15%;"></div>
+    <div class="object" data-name="Hoa mai" style="top:30%; left:70%;"></div>
+    <div class="object" data-name="Đèn lồng" style="top:18%; left:40%;"></div>
+    <div class="object" data-name="Bánh chưng" style="top:70%; left:55%;"></div>
+    <div class="object" data-name="Rồng Tết" style="top:45%; left:85%;"></div>
+  </div>
 
-    <div>
-        <h3>🧩 Mảnh Tranh</h3>
-        <div id="tray"></div>
-    </div>
+  <div class="list">
+    <div class="item" data-name="Bao lì xì">🧧 Bao lì xì</div>
+    <div class="item" data-name="Hoa mai">🌸 Hoa mai</div>
+    <div class="item" data-name="Đèn lồng">🏮 Đèn lồng</div>
+    <div class="item" data-name="Bánh chưng">🥮 Bánh chưng</div>
+    <div class="item" data-name="Rồng Tết">🐉 Rồng Tết</div>
+  </div>
+</div>
 
+<div id="win">
+  <div class="box">
+    <h2>🎉 Chúc Mừng Năm Mới! 🎉</h2>
+    <p>Bạn đã tìm thấy tất cả đồ vật 🎊</p>
+    <button onclick="location.reload()">Chơi lại</button>
+  </div>
 </div>
 
 <script>
-const size = 3;
-const board = document.getElementById("board");
-const tray = document.getElementById("tray");
-let dragged = null;
+const objects = document.querySelectorAll(".object");
+const items = document.querySelectorAll(".item");
+const win = document.getElementById("win");
 
-/* ===== TẠO SLOT ===== */
-for(let i=0;i<size*size;i++){
-    const slot = document.createElement("div");
-    slot.className = "slot";
-    slot.dataset.index = i;
+let found = 0;
 
-    slot.addEventListener("dragover", e => e.preventDefault());
-    slot.addEventListener("drop", () => dropToSlot(slot));
+objects.forEach(obj => {
+  obj.addEventListener("pointerdown", () => {
+    if(obj.classList.contains("found")) return;
 
-    board.appendChild(slot);
-}
+    obj.classList.add("found");
+    const name = obj.dataset.name;
 
-/* ===== TẠO MẢNH ===== */
-const pieces = [];
-for(let i=0;i<size*size;i++){
-    const piece = document.createElement("div");
-    piece.className = "piece";
-    piece.draggable = true;
-    piece.dataset.index = i;
+    items.forEach(item => {
+      if(item.dataset.name === name) {
+        item.classList.add("found");
+      }
+    });
 
-    const x = (i % size) * -100;
-    const y = Math.floor(i / size) * -100;
-    piece.style.backgroundPosition = `${x}px ${y}px`;
-
-    piece.addEventListener("dragstart", () => dragged = piece);
-    pieces.push(piece);
-}
-
-/* ===== TRỘN & ĐƯA VÀO KHAY ===== */
-pieces.sort(() => Math.random() - 0.5);
-pieces.forEach(p => tray.appendChild(p));
-
-tray.addEventListener("dragover", e => e.preventDefault());
-tray.addEventListener("drop", () => {
-    if (dragged) tray.appendChild(dragged);
+    found++;
+    if(found === objects.length) {
+      setTimeout(() => {
+        win.style.display = "flex";
+      }, 500);
+    }
+  });
 });
-
-/* ===== THẢ VÀO SLOT ===== */
-function dropToSlot(slot){
-    if (!dragged) return;
-
-    if (slot.firstChild){
-        tray.appendChild(slot.firstChild);
-    }
-    slot.appendChild(dragged);
-
-    if (dragged.dataset.index == slot.dataset.index){
-        dragged.classList.add("locked");
-        dragged.draggable = false;
-    }
-
-    dragged = null;
-    checkWin();
-}
-
-/* ===== KIỂM TRA HOÀN THÀNH ===== */
-function checkWin(){
-    for(let i=0;i<board.children.length;i++){
-        const slot = board.children[i];
-        if (!slot.firstChild || slot.firstChild.dataset.index != i){
-            return;
-        }
-    }
-    setTimeout(() => alert("🎉 Hoàn thành bức tranh!"), 200);
-}
-</script>
-
-</body>
-</html>
-
-
-
 </script>
 
 </body>
