@@ -40,9 +40,9 @@ window.addEventListener("resize", setupCanvas);
    OBJECT LIST (tọa độ ảnh gốc)
 ========================= */
 const objects = [
-    { name: "Con chó màu đen", x: 472, y: 551, r: 80, found: false },
-    { name: "Quả bóng rổ màu cam", x: 939, y: 417, r: 60, found: false },
-    { name: "Bàn bóng bàn", x: 1344, y: 117, r: 100, found: false }
+    { name: "cặp tình nhân chớp nở", x: 472, y: 551, r: 80, found: false },
+    { name: "người yêu cũ và con cua của cổ", x: 939, y: 417, r: 60, found: false },
+    { name: "jinta poster", x: 1344, y: 117, r: 100, found: false }
 ];
 
 let current = 0;
