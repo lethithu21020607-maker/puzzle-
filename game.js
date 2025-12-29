@@ -156,37 +156,53 @@ function drawCircle(x, y, r) {
     ctx.restore();
 }
 /* =========================
-   PINCH ZOOM (MOBILE)
+   PINCH ZOOM (MOBILE - FIXED)
 ========================= */
-const sceneWrap = document.getElementById("scene-wrap");
+const wrap = document.getElementById("scene-wrap");
 
-let scale = 1;
+let pointers = [];
 let startDist = 0;
+let scale = 1;
 
-sceneWrap.addEventListener("touchstart", e => {
-    if (e.touches.length === 2) {
-        startDist = getDistance(e.touches[0], e.touches[1]);
+wrap.addEventListener("pointerdown", e => {
+    pointers.push(e);
+});
+
+wrap.addEventListener("pointermove", e => {
+    for (let i = 0; i < pointers.length; i++) {
+        if (pointers[i].pointerId === e.pointerId) {
+            pointers[i] = e;
+            break;
+        }
     }
-}, { passive: false });
 
-sceneWrap.addEventListener("touchmove", e => {
-    if (e.touches.length === 2) {
-        e.preventDefault();
+    if (pointers.length === 2) {
+        const dist = getDistance(pointers[0], pointers[1]);
 
-        const newDist = getDistance(e.touches[0], e.touches[1]);
-        let zoom = newDist / startDist;
+        if (!startDist) startDist = dist;
 
+        let zoom = dist / startDist;
         scale *= zoom;
-        scale = Math.min(Math.max(scale, 1), 3); // zoom từ 1x → 3x
+        scale = Math.min(Math.max(scale, 1), 3);
 
-        sceneWrap.style.transform = `scale(${scale})`;
-        startDist = newDist;
+        wrap.style.transform = `scale(${scale})`;
+        startDist = dist;
     }
-}, { passive: false });
+});
 
-function getDistance(t1, t2) {
+wrap.addEventListener("pointerup", e => {
+    pointers = pointers.filter(p => p.pointerId !== e.pointerId);
+    if (pointers.length < 2) startDist = 0;
+});
+
+wrap.addEventListener("pointercancel", () => {
+    pointers = [];
+    startDist = 0;
+});
+
+function getDistance(p1, p2) {
     return Math.hypot(
-        t2.clientX - t1.clientX,
-        t2.clientY - t1.clientY
+        p2.clientX - p1.clientX,
+        p2.clientY - p1.clientY
     );
 }
