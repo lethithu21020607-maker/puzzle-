@@ -11,7 +11,10 @@ body {
     background:
         radial-gradient(circle at top, #2b2f4a, #0c0f1a 70%);
     color: #f5f6fa;
-    touch-action: manipulation;
+    body {
+    touch-action: pan-x pan-y;
+}
+
 }
 
 /* =========================
@@ -221,6 +224,10 @@ header h1 {
 }
 #scene-wrap {
     position: relative;
-    transform-origin: center center;
     touch-action: none; /* cho phép pinch zoom */
+    transform-origin: center center;
+}
+
+#canvas {
+    touch-action: none;
 }
