@@ -155,3 +155,38 @@ function drawCircle(x, y, r) {
     ctx.stroke();
     ctx.restore();
 }
+/* =========================
+   PINCH ZOOM (MOBILE)
+========================= */
+const sceneWrap = document.getElementById("scene-wrap");
+
+let scale = 1;
+let startDist = 0;
+
+sceneWrap.addEventListener("touchstart", e => {
+    if (e.touches.length === 2) {
+        startDist = getDistance(e.touches[0], e.touches[1]);
+    }
+}, { passive: false });
+
+sceneWrap.addEventListener("touchmove", e => {
+    if (e.touches.length === 2) {
+        e.preventDefault();
+
+        const newDist = getDistance(e.touches[0], e.touches[1]);
+        let zoom = newDist / startDist;
+
+        scale *= zoom;
+        scale = Math.min(Math.max(scale, 1), 3); // zoom từ 1x → 3x
+
+        sceneWrap.style.transform = `scale(${scale})`;
+        startDist = newDist;
+    }
+}, { passive: false });
+
+function getDistance(t1, t2) {
+    return Math.hypot(
+        t2.clientX - t1.clientX,
+        t2.clientY - t1.clientY
+    );
+}

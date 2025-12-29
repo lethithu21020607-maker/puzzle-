@@ -219,3 +219,8 @@ header h1 {
     background: linear-gradient(90deg, #7cff7c, #00ffcc);
     transition: width 0.4s ease;
 }
+#scene-wrap {
+    position: relative;
+    transform-origin: center center;
+    touch-action: none; /* cho phép pinch zoom */
+}
