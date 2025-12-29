@@ -1,0 +1,226 @@
+/* =========================
+   RESET & GLOBAL
+========================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Poppins", "Segoe UI", Roboto, Arial, sans-serif;
+    background:
+        radial-gradient(circle at top, #2b2f4a, #0c0f1a 70%);
+    color: #f5f6fa;
+    touch-action: manipulation;
+}
+
+/* =========================
+   HEADER
+========================= */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    text-align: center;
+    padding: 14px 10px;
+    background: rgba(15, 18, 35, 0.7);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: 1px;
+}
+
+#mission {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #ffd369;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+#game {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 12px;
+}
+
+/* =========================
+   SCENE (MAIN GAME)
+========================= */
+#left {
+    position: relative;
+    width: 100%;
+    max-width: 920px;
+    margin: auto;
+    border-radius: 22px;
+    overflow: hidden;
+    background: #000;
+    box-shadow:
+        0 20px 40px rgba(0,0,0,0.65),
+        0 0 0 1px rgba(255,255,255,0.06);
+}
+
+#scene {
+    width: 100%;
+    display: block;
+}
+
+#canvas {
+    position: absolute;
+    inset: 0;
+    touch-action: none;
+}
+
+/* =========================
+   SIDEBAR (OBJECT LIST)
+========================= */
+#right {
+    width: 100%;
+    padding: 16px;
+    border-radius: 22px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.14),
+            rgba(255,255,255,0.06)
+        );
+    backdrop-filter: blur(14px);
+    box-shadow:
+        0 10px 25px rgba(0,0,0,0.45),
+        inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+#right h3 {
+    margin: 0 0 10px;
+    text-align: center;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+
+/* =========================
+   LIST
+========================= */
+#list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+#list li {
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px dashed rgba(255,255,255,0.25);
+    transition: color 0.25s ease, transform 0.25s ease;
+}
+
+#list li.found {
+    color: #7CFF7C;
+    text-decoration: line-through;
+    transform: translateX(4px);
+}
+
+/* =========================
+   STATUS
+========================= */
+#status {
+    margin-top: 12px;
+    font-weight: 600;
+    text-align: center;
+    color: #ffd369;
+}
+
+/* =========================
+   SOUND BUTTON
+========================= */
+#soundBtn {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 26px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1b1b1b;
+    background: linear-gradient(135deg, #ffd369, #ff9f45);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow:
+        0 8px 20px rgba(0,0,0,0.5),
+        inset 0 -2px 0 rgba(0,0,0,0.2);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+#soundBtn:active {
+    transform: scale(0.95);
+    box-shadow:
+        0 4px 10px rgba(0,0,0,0.5),
+        inset 0 -1px 0 rgba(0,0,0,0.2);
+}
+
+/* =========================
+   DESKTOP
+========================= */
+@media (min-width: 768px) {
+    #game {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    #right {
+        width: 280px;
+    }
+}
+/* ===== GLOW EFFECT ===== */
+@keyframes glow {
+    0%   { box-shadow: 0 0 0 rgba(124,255,124,0); }
+    50%  { box-shadow: 0 0 30px rgba(124,255,124,0.9); }
+    100% { box-shadow: 0 0 0 rgba(124,255,124,0); }
+}
+
+#left.glow {
+    animation: glow 0.6s ease;
+}
+/* ===== SHAKE EFFECT ===== */
+@keyframes shake {
+    0%   { transform: translateX(0); }
+    25%  { transform: translateX(-6px); }
+    50%  { transform: translateX(6px); }
+    75%  { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+}
+
+#left.shake {
+    animation: shake 0.3s;
+}
+/* ===== SCORE & PROGRESS ===== */
+#scoreBox {
+    margin-bottom: 12px;
+    font-size: 14px;
+    text-align: center;
+}
+
+#progress {
+    width: 100%;
+    height: 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 999px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #7cff7c, #00ffcc);
+    transition: width 0.4s ease;
+}
+#scene-wrap {
+    position: relative;
+    transform-origin: center center;
+    touch-action: none; /* cho phép pinch zoom */
+}
