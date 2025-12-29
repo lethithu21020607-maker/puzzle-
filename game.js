@@ -45,7 +45,7 @@ window.addEventListener("resize", setupCanvas);
    OBJECT LIST
 ========================= */
 const objects = [
-    { name: "cặp tình nhân chớp nở", x: 472, y: 551, r: 80, found: false },
+    { name: "cặp tình nhân chớp nở", x: 472, y: 551, r: 100, found: false },
     { name: "người yêu cũ và con cua của cổ", x: 939, y: 417, r: 60, found: false },
     { name: "jinta poster", x: 1344, y: 117, r: 100, found: false },
     { name: "mái ấm", x: 377, y: 225, r: 100, found: false },
@@ -101,6 +101,17 @@ function handleClick(e) {
         if (dist <= hitRadius) {
             hit = true;
             obj.found = true;
+            for (let i = 0; i < 12; i++) {
+    const s = document.createElement("div");
+    s.className = "sparkle";
+    s.style.left = `${e.clientX}px`;
+    s.style.top = `${e.clientY}px`;
+    s.style.setProperty("--x", `${(Math.random()-0.5)*120}px`);
+    s.style.setProperty("--y", `${(Math.random()-0.5)*120}px`);
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 800);
+}
+
 
             // âm thanh + hiệu ứng
             correctSound.currentTime = 0;
@@ -158,6 +169,16 @@ function checkFinish() {
         bgMusic.pause();
     }
 }
+// 🎉 CONFETTI
+    for (let i = 0; i < 40; i++) {
+        const c = document.createElement("div");
+        c.className = "confetti";
+        c.style.left = Math.random() * 100 + "vw";
+        c.style.setProperty("--h", Math.random() * 360);
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 2500);
+    }
+
 
 /* =========================
    DRAW
@@ -171,4 +192,131 @@ function drawCircle(x, y, r) {
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
+}
+/* =========================
+   SMOOTH ZOOM + PAN + INERTIA
+========================= */
+const wrap = document.getElementById("scene-wrap");
+
+let scale = 1;
+let minScale = 1;
+let maxScale = 3;
+
+let posX = 0;
+let posY = 0;
+
+let lastX = 0;
+let lastY = 0;
+let velocityX = 0;
+let velocityY = 0;
+let isDragging = false;
+
+let pointers = [];
+let startDist = 0;
+let startScale = 1;
+
+/* APPLY TRANSFORM */
+function updateTransform() {
+    wrap.style.transform =
+        `translate(${posX}px, ${posY}px) scale(${scale})`;
+}
+
+/* =========================
+   POINTER DOWN
+========================= */
+wrap.addEventListener("pointerdown", e => {
+    wrap.setPointerCapture(e.pointerId);
+    pointers.push(e);
+
+    lastX = e.clientX;
+    lastY = e.clientY;
+    velocityX = velocityY = 0;
+    isDragging = true;
+});
+
+/* =========================
+   POINTER MOVE
+========================= */
+wrap.addEventListener("pointermove", e => {
+    for (let i = 0; i < pointers.length; i++) {
+        if (pointers[i].pointerId === e.pointerId) {
+            pointers[i] = e;
+            break;
+        }
+    }
+
+    /* PINCH ZOOM (2 NGÓN) */
+    if (pointers.length === 2) {
+        const dist = getDistance(pointers[0], pointers[1]);
+
+        if (!startDist) {
+            startDist = dist;
+            startScale = scale;
+        }
+
+        scale = startScale * (dist / startDist);
+        scale = Math.min(Math.max(scale, minScale), maxScale);
+        updateTransform();
+        return;
+    }
+
+    /* PAN (1 NGÓN) */
+    if (isDragging && pointers.length === 1) {
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+
+        posX += dx;
+        posY += dy;
+
+        velocityX = dx;
+        velocityY = dy;
+
+        lastX = e.clientX;
+        lastY = e.clientY;
+
+        updateTransform();
+    }
+});
+
+/* =========================
+   POINTER UP
+========================= */
+wrap.addEventListener("pointerup", e => {
+    pointers = pointers.filter(p => p.pointerId !== e.pointerId);
+    isDragging = false;
+    startDist = 0;
+
+    applyInertia();
+});
+
+/* =========================
+   INERTIA (ĐÀ TRƯỢT)
+========================= */
+function applyInertia() {
+    const friction = 0.92;
+
+    function animate() {
+        posX += velocityX;
+        posY += velocityY;
+
+        velocityX *= friction;
+        velocityY *= friction;
+
+        updateTransform();
+
+        if (Math.abs(velocityX) > 0.5 || Math.abs(velocityY) > 0.5) {
+            requestAnimationFrame(animate);
+        }
+    }
+    requestAnimationFrame(animate);
+}
+
+/* =========================
+   DISTANCE
+========================= */
+function getDistance(p1, p2) {
+    return Math.hypot(
+        p2.clientX - p1.clientX,
+        p2.clientY - p1.clientY
+    );
 }

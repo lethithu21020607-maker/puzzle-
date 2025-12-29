@@ -229,23 +229,40 @@ header h1 {
 #canvas {
     touch-action: none;
 }
-/* =========================
-   ZOOM + PAN FIX (IMPORTANT)
-========================= */
-#scene-wrap {
-    position: relative;
-    overflow: hidden;
-    touch-action: none;
+/* ===== SPARKLE ===== */
+.sparkle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #fff, #7cff7c);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sparkle 0.8s ease-out forwards;
 }
 
-#scene-wrap img,
-#scene-wrap canvas {
-    transform-origin: 0 0;
-    user-select: none;
-    -webkit-user-drag: none;
-    pointer-events: none; /* tránh bị img ăn touch */
+@keyframes sparkle {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: translate(var(--x), var(--y)) scale(0);
+        opacity: 0;
+    }
+}
+/* ===== CONFETTI ===== */
+.confetti {
+    position: fixed;
+    width: 6px;
+    height: 10px;
+    background: hsl(var(--h), 80%, 60%);
+    top: -10px;
+    animation: confetti 2.5s linear forwards;
 }
 
-#canvas {
-    pointer-events: auto; /* chỉ canvas nhận click */
+@keyframes confetti {
+    to {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+    }
 }
