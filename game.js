@@ -17,10 +17,13 @@ const correctSound = document.getElementById("correctSound");
 const wrongSound = document.getElementById("wrongSound");
 
 let hasUserInteracted = false;
+
+/* =========================
+   SCORE + PROGRESS
+========================= */
 let score = 0;
 const scoreEl = document.getElementById("score");
 const progressBar = document.getElementById("progress-bar");
-
 
 /* =========================
    SCALE
@@ -34,14 +37,12 @@ function setupCanvas() {
     scaleX = img.naturalWidth / img.clientWidth;
     scaleY = img.naturalHeight / img.clientHeight;
 }
-
 if (img.complete) setupCanvas();
 else img.onload = setupCanvas;
-
 window.addEventListener("resize", setupCanvas);
 
 /* =========================
-   OBJECT LIST (tọa độ ảnh gốc)
+   OBJECT LIST
 ========================= */
 const objects = [
     { name: "cặp tình nhân chớp nở", x: 472, y: 551, r: 80, found: false },
@@ -49,11 +50,8 @@ const objects = [
     { name: "jinta poster", x: 1344, y: 117, r: 100, found: false },
     { name: "mái ấm", x: 377, y: 225, r: 100, found: false },
     { name: "phao", x: 1059, y: 157, r: 70, found: false },
-    { name: "tông lào", x: 754, y: 916, r: 55, found: false },
-
+    { name: "tông lào", x: 754, y: 916, r: 55, found: false }
 ];
-
-let current = 0;
 
 /* =========================
    UI INIT
@@ -63,11 +61,10 @@ objects.forEach(obj => {
     li.textContent = obj.name;
     listEl.appendChild(li);
 });
-
-missionText.textContent = "🔍 Hãy tìm: " + objects[current].name;
+missionText.textContent = "🔍 Hãy tìm tất cả đồ vật";
 
 /* =========================
-   ENABLE SOUND (AUTOPLAY SAFE)
+   SOUND
 ========================= */
 function enableSound() {
     if (!hasUserInteracted) {
@@ -79,66 +76,86 @@ function enableSound() {
 }
 
 /* =========================
-   INPUT – MOBILE + DESKTOP
+   INPUT
 ========================= */
 canvas.addEventListener("pointerdown", handleClick);
 
 /* =========================
-   GAME LOGIC
+   GAME LOGIC (FREE FIND)
 ========================= */
 function handleClick(e) {
     enableSound();
-    if (current >= objects.length) return;
 
     const rect = canvas.getBoundingClientRect();
     const clickX = (e.clientX - rect.left) * scaleX;
     const clickY = (e.clientY - rect.top) * scaleY;
 
-    const obj = objects[current];
-    const hitRadius = window.innerWidth < 768 ? obj.r * 1.4 : obj.r;
-    const dist = Math.hypot(clickX - obj.x, clickY - obj.y);
+    let hit = false;
 
-    // hiển thị tọa độ để chỉnh trên mobile
-    statusEl.textContent = `📍 x:${Math.floor(clickX)} y:${Math.floor(clickY)}`;
+    objects.forEach((obj, index) => {
+        if (obj.found) return;
 
-    if (dist <= hitRadius && !obj.found) {
-        correctSound.currentTime = 0;
-        correctSound.play();
+        const hitRadius = window.innerWidth < 768 ? obj.r * 1.4 : obj.r;
+        const dist = Math.hypot(clickX - obj.x, clickY - obj.y);
 
-        obj.found = true;
-        // cộng điểm
-        score += 100;
-scoreEl.textContent = score;
+        if (dist <= hitRadius) {
+            hit = true;
+            obj.found = true;
 
-const percent = (current / objects.length) * 100;
-progressBar.style.width = percent + "%";
+            // âm thanh + hiệu ứng
+            correctSound.currentTime = 0;
+            correctSound.play();
 
-        listEl.children[current].classList.add("found");
+            drawCircle(obj.x, obj.y, obj.r);
 
-        drawCircle(obj.x, obj.y, obj.r);
-        // glow effect
-document.getElementById("left").classList.add("glow");
-setTimeout(() => {
-    document.getElementById("left").classList.remove("glow");
-}, 600);
+            document.getElementById("left").classList.add("glow");
+            setTimeout(() => {
+                document.getElementById("left").classList.remove("glow");
+            }, 600);
 
+            // UI
+            listEl.children[index].classList.add("found");
 
-        current++;
-        if (current < objects.length) {
-            missionText.textContent = "🔍 Hãy tìm: " + objects[current].name;
-        } else {
-            missionText.textContent = "🎉 Hoàn thành!";
-            statusEl.textContent = "🏆 Bạn đã tìm xong tất cả!";
-            bgMusic.pause();
+            // điểm
+            score += 100;
+            scoreEl.textContent = score;
+
+            updateProgress();
         }
-    } else {
+    });
+
+    if (!hit) {
         wrongSound.currentTime = 0;
         wrongSound.play();
-        // shake effect
-const left = document.getElementById("left");
-left.classList.add("shake");
-setTimeout(() => left.classList.remove("shake"), 300);
 
+        score = Math.max(0, score - 50);
+        scoreEl.textContent = score;
+
+        const left = document.getElementById("left");
+        left.classList.add("shake");
+        setTimeout(() => left.classList.remove("shake"), 300);
+    }
+
+    checkFinish();
+}
+
+/* =========================
+   PROGRESS
+========================= */
+function updateProgress() {
+    const foundCount = objects.filter(o => o.found).length;
+    const percent = (foundCount / objects.length) * 100;
+    progressBar.style.width = percent + "%";
+}
+
+/* =========================
+   FINISH
+========================= */
+function checkFinish() {
+    if (objects.every(o => o.found)) {
+        missionText.textContent = "🎉 Hoàn thành!";
+        statusEl.textContent = "🏆 Bạn đã tìm xong tất cả!";
+        bgMusic.pause();
     }
 }
 
@@ -154,55 +171,4 @@ function drawCircle(x, y, r) {
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
-}
-/* =========================
-   PINCH ZOOM (MOBILE - FIXED)
-========================= */
-const wrap = document.getElementById("scene-wrap");
-
-let pointers = [];
-let startDist = 0;
-let scale = 1;
-
-wrap.addEventListener("pointerdown", e => {
-    pointers.push(e);
-});
-
-wrap.addEventListener("pointermove", e => {
-    for (let i = 0; i < pointers.length; i++) {
-        if (pointers[i].pointerId === e.pointerId) {
-            pointers[i] = e;
-            break;
-        }
-    }
-
-    if (pointers.length === 2) {
-        const dist = getDistance(pointers[0], pointers[1]);
-
-        if (!startDist) startDist = dist;
-
-        let zoom = dist / startDist;
-        scale *= zoom;
-        scale = Math.min(Math.max(scale, 1), 3);
-
-        wrap.style.transform = `scale(${scale})`;
-        startDist = dist;
-    }
-});
-
-wrap.addEventListener("pointerup", e => {
-    pointers = pointers.filter(p => p.pointerId !== e.pointerId);
-    if (pointers.length < 2) startDist = 0;
-});
-
-wrap.addEventListener("pointercancel", () => {
-    pointers = [];
-    startDist = 0;
-});
-
-function getDistance(p1, p2) {
-    return Math.hypot(
-        p2.clientX - p1.clientX,
-        p2.clientY - p1.clientY
-    );
 }
