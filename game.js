@@ -184,6 +184,7 @@ function checkFinish() {
    DRAW
 ========================= */
 function drawCircle(x, y, r) {
+    
     ctx.save();
     ctx.scale(1 / scaleX, 1 / scaleY);
     ctx.strokeStyle = "red";
@@ -320,3 +321,26 @@ function getDistance(p1, p2) {
         p2.clientY - p1.clientY
     );
 }
+/* ================= HOME CONTROL ================= */
+const home = document.getElementById("home");
+const game = document.getElementById("game");
+const playBtn = document.getElementById("playBtn");
+
+playBtn.addEventListener("click", () => {
+    home.classList.add("hidden");
+    game.classList.remove("hidden");
+
+    bgMusic.muted = false;
+    bgMusic.volume = 0.3;
+    bgMusic.play().catch(()=>{});
+});
+
+/* FULLSCREEN */
+document.getElementById("fullscreenBtn").onclick = () => {
+    document.documentElement.requestFullscreen?.();
+};
+
+/* SOUND TOGGLE */
+document.getElementById("soundToggle").onclick = () => {
+    bgMusic.muted = !bgMusic.muted;
+};
